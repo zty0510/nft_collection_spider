@@ -1,0 +1,32 @@
+
+variables:
+  GIT_STRATEGY: clone
+  IMAGE_NAME: dc-spider
+  REGISTRY: dockershare:2333
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  tags:
+    - dev
+  script:
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+    - docker tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA $REGISTRY/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker push $REGISTRY/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+
+deploy-dev:
+  stage: deploy
+  tags:
+    - dev
+  script:
+    - |
+      if [ $(docker ps -aq --filter name=^/$IMAGE_NAME$) ]; then
+        docker rm -f $IMAGE_NAME
+      fi
+    - docker run -d -v /etc/timezone:/etc/timezone:ro -v /etc/localtime:/etc/localtime:ro --name $IMAGE_NAME $REGISTRY/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA python spider.py
+    - echo "python spider.py"
+  only:
+    - dev

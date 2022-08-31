@@ -1,0 +1,22 @@
+# editor
+.idea
+
+# runtime
+*.pyc
+venv
+
+# error logs
+errors.txt
+**/errors.txt
+
+# test export
+*.xls
+**/*.xls
+
+# test entry
+test.py
+test
+
+# cache
+
+**/*.names
